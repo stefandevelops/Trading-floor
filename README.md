@@ -94,6 +94,21 @@ and are the realistic instruments for a small account. In the backtest,
 `--leverage` simulates the buying power of an account: `--leverage 50` lets $1k
 control ~$50k of exposure, enough for one MES.
 
+## Real market data (Databento)
+
+Synthetic data is for learning; real backtests use **Databento** (CME futures,
+~$0.50/GB, **$125 free credits** on signup).
+
+```bash
+# 1. Sign up at https://databento.com and copy your API key
+# 2. Export it
+export DATABENTO_API_KEY='db-xxxx'
+
+# 3. Run a backtest on real data (downloads + decodes + backtests in one go)
+.venv/bin/python run_real_backtest.py --symbol MESZ6 --start 2026-09-01 --end 2026-10-01
+.venv/bin/python run_real_backtest.py --symbol ESZ6 --strategy breakout --capital 1000000
+```
+
 ## Getting it onto GitHub
 
 This folder is already a git repository (initial commit done). To publish it:
@@ -112,8 +127,9 @@ Bitbucket; yours already lives here on your Mac.)
 
 ## Roadmap (next milestones)
 
-- [ ] **M2 — Real data**: load real ES/NQ historical bars from a provider
-      (Databento, Polygon.io, etc.) into a Parquet data catalog.
+- [x] **M2 — Real data**: Databento → DBN → Nautilus bars (see `run_real_backtest.py`).
+- [ ] **M2b — Parquet catalog**: cache downloaded data in a Nautilus Parquet catalog
+      for fast repeat runs (currently decoded from DBN each run).
 - [ ] **M3 — More instruments & strategies**: run ES *and* NQ, parameterize the
       strategy, add a risk module (position limits, daily loss cap).
 - [ ] **M4 — The "floor"**: split responsibilities into separate agents (signal

@@ -25,6 +25,36 @@ from nautilus_trader.model.instruments import Instrument
 from nautilus_trader.trading.strategy import Strategy
 
 
+def build_strategy(
+    name: str,
+    instrument_id: InstrumentId,
+    bar_type: BarType,
+    trade_size: Decimal,
+) -> Strategy:
+    """Create a strategy instance by name (used by both the synthetic and real-data runners)."""
+
+    if name == "ema":
+        return EmaCrossStrategy(
+            EmaCrossConfig(
+                instrument_id=instrument_id,
+                bar_type=bar_type,
+                trade_size=trade_size,
+                fast_period=12,
+                slow_period=26,
+            )
+        )
+    if name == "breakout":
+        return BreakoutStrategy(
+            BreakoutConfig(
+                instrument_id=instrument_id,
+                bar_type=bar_type,
+                trade_size=trade_size,
+                lookback=20,
+            )
+        )
+    raise ValueError(f"Unknown strategy: {name}")
+
+
 class EmaCrossConfig(StrategyConfig, frozen=True):
     """Configuration for ``EmaCrossStrategy``."""
 

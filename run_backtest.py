@@ -21,43 +21,15 @@ from trading_floor.instruments import es_future
 from trading_floor.instruments import mes_future
 from trading_floor.instruments import mnq_future
 from trading_floor.instruments import nq_future
-from trading_floor.strategies import BreakoutConfig
-from trading_floor.strategies import BreakoutStrategy
-from trading_floor.strategies import EmaCrossConfig
-from trading_floor.strategies import EmaCrossStrategy
+from trading_floor.strategies import build_strategy
 
-# Each instrument: (builder function, a realistic approximate price, tick size).
+# Each instrument: (builder function, a realistic approximate price).
 INSTRUMENTS = {
     "ES": (es_future, 5900.0),
     "NQ": (nq_future, 20500.0),
     "MES": (mes_future, 5900.0),
     "MNQ": (mnq_future, 20500.0),
 }
-
-
-def build_strategy(name: str, instrument_id, bar_type, trade_size: Decimal):
-    """Create a strategy instance by name."""
-
-    if name == "ema":
-        return EmaCrossStrategy(
-            EmaCrossConfig(
-                instrument_id=instrument_id,
-                bar_type=bar_type,
-                trade_size=trade_size,
-                fast_period=12,
-                slow_period=26,
-            )
-        )
-    if name == "breakout":
-        return BreakoutStrategy(
-            BreakoutConfig(
-                instrument_id=instrument_id,
-                bar_type=bar_type,
-                trade_size=trade_size,
-                lookback=20,
-            )
-        )
-    raise ValueError(f"Unknown strategy: {name}")
 
 
 def main() -> None:
