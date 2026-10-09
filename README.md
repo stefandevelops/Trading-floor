@@ -23,11 +23,11 @@ would sit on.
 
 A complete, runnable backtest pipeline with zero external data or API keys:
 
-1. **Instruments** — real ES/NQ futures contract specs (`instruments.py`).
+1. **Instruments** — full (ES/NQ) and micro (MES/MNQ) futures specs (`instruments.py`).
 2. **Data** — a synthetic random-walk bar generator (`data.py`).
-3. **Strategy** — a dual-EMA crossover (`strategies.py`).
+3. **Strategies** — a dual-EMA crossover *and* a Donchian breakout (`strategies.py`).
 4. **Engine** — full backtest wiring (`backtest.py`).
-5. **Run** — `run_backtest.py` ties it together and prints results.
+5. **Run** — `run_backtest.py` picks instrument, strategy, capital, and leverage.
 
 ## Setup
 
@@ -42,20 +42,24 @@ python3 -m venv .venv
 ## Run
 
 ```bash
-.venv/bin/python run_backtest.py
+.venv/bin/python run_backtest.py                                        # MES + EMA, $1k
+.venv/bin/python run_backtest.py --strategy breakout --capital 1000    # MES + breakout, $1k
+.venv/bin/python run_backtest.py --instrument ES --capital 1000000     # full ES, $1m
+.venv/bin/python run_backtest.py --instrument NQ --strategy ema --leverage 50
 ```
 
-You'll see the engine's full performance report (PnL, Sharpe, profit factor,
-win/loss stats) followed by a short headline summary.
+Options: `--instrument` (ES/NQ/MES/MNQ), `--strategy` (ema/breakout),
+`--capital`, `--leverage`, `--periods`. You'll see the engine's full performance
+report followed by a short headline summary.
 
 ## Project structure
 
 ```
 trading-floor/
 ├── trading_floor/          # the Python package
-│   ├── instruments.py      # ES / NQ futures contracts
+│   ├── instruments.py      # ES/NQ + micro MES/MNQ futures contracts
 │   ├── data.py             # synthetic bar generation
-│   ├── strategies.py       # EMA crossover strategy
+│   ├── strategies.py       # EMA crossover + Donchian breakout strategies
 │   └── backtest.py         # engine setup + runner helper
 ├── run_backtest.py         # entry point
 ├── requirements.txt
@@ -81,6 +85,30 @@ trading-floor/
   trading on funded accounts in their terms of service. Read yours before ever
   connecting live orders. The intended path here is *research-first*, with
   human-in-the-loop confirmation if you ever go live.
+
+## Micros vs full contracts (why $1k matters)
+
+One full ES contract at ~5900 with a $50 multiplier is ~$295,000 of exposure —
+you cannot hold that with $1,000. Micros (MES ×$5, MNQ ×$2) are 1/10th the size
+and are the realistic instruments for a small account. In the backtest,
+`--leverage` simulates the buying power of an account: `--leverage 50` lets $1k
+control ~$50k of exposure, enough for one MES.
+
+## Getting it onto GitHub
+
+This folder is already a git repository (initial commit done). To publish it:
+
+1. Go to https://github.com/new and create an **empty** repo (no README/license).
+2. In a terminal inside this folder, run:
+
+   ```bash
+   git remote add origin https://github.com/stefandevelops/trading-floor.git
+   git push -u origin main
+   ```
+
+(Replace the URL with your new repo's URL. The GitHub *"Import repository"*
+page is not what you want — that copies a repo that already exists on GitLab or
+Bitbucket; yours already lives here on your Mac.)
 
 ## Roadmap (next milestones)
 
